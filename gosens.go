@@ -79,6 +79,7 @@ func main() {
 	inputDPI := flag.Int("dpi", 800, "Your DPI")
 	inputMin := flag.Int("min", 20, "Lower sensitivity bound")
 	inputMax := flag.Int("max", 40, "Upper sensitivity bound")
+	inputGameList := flag.Bool("games", false, "Print the available games")
 	inputDebug := flag.Bool("debug", false, "Print all variables")
 	flag.Parse()
 
@@ -89,8 +90,15 @@ func main() {
 	cm360 := recalcCM(genOutput, *inputDPI, yaw)
 
 	// output
-	fmt.Printf("%v in %s setttings (%0.2f cm/360)\n", genOutput, fullName, cm360)
-	fmt.Printf("Settings: %d DPI, %dcm - %dcm", *inputDPI, *inputMin, *inputMax)
+	if *inputGameList == true {
+		fmt.Println("Games Dictionary:\n")
+		for _, entry := range gameDic {
+			fmt.Printf("%s - %s\n", entry.fullName, entry.shortName)
+		}
+	} else {
+		fmt.Printf("%v in %s setttings (%0.2f cm/360)\n", genOutput, fullName, cm360)
+		fmt.Printf("Settings: %d DPI, %dcm - %dcm\n", *inputDPI, *inputMin, *inputMax)
+	}
 
 	// debug
 	if *inputDebug == true {
