@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"math"
 	"math/rand"
-	"strconv"
 	s "strings"
 	"time"
 )
@@ -21,8 +21,11 @@ var gameDic = []gameEntry{
 	{"fn", "Fortnite", 3.0, 0.005555},
 	{"csgo", "Counter-Strike", 2.0, 0.022},
 	{"qc", "Quake Champions", 6.0, 0.022},
+	{"source", "Source Games", 2.0, 0.022},
+	{"r6", "Rainbow Six Siege", 0.0, 0.00572957795130823},
 }
 
+// matching string input to game dictionary
 func getSelectedGame(inputGame string) (name string, prec float64, yaw float64) {
 	for _, entry := range gameDic {
 		if s.ToLower(entry.shortName) == s.ToLower(inputGame) || s.ToLower(entry.fullName) == s.ToLower(inputGame) {
@@ -32,6 +35,7 @@ func getSelectedGame(inputGame string) (name string, prec float64, yaw float64) 
 	panic("That game does not exist yet")
 }
 
+// generating the random cm/360
 func floatRange(min int, max int) float64 {
 	fmin := float64(min)
 	fmax := float64(max)
@@ -39,10 +43,33 @@ func floatRange(min int, max int) float64 {
 	return fmin + rand.Float64()*(fmax-fmin)
 }
 
-func generateSens(randValue float64, dpi int, yaw float64, precision float64) string {
+// converts the random cm/360 by rounding to the game precision
+// TODO: if games allow different precisions in a config file, have it output both
+func generateSens(randValue float64, dpi int, yaw float64, prec float64) (sens float64) {
 	fdpi := float64(dpi)
-	sens := (4572.0 / (5.0 * randValue * fdpi * yaw))
-	return strconv.FormatFloat(sens, 'f', int(precision), 64)
+	unrounded := (360.0 * 2.54 / (randValue * fdpi * yaw))
+	return float64(int(unrounded* math.Pow(10, prec))) / math.Pow(10, prec)
+}
+
+/*
+Recalculates the cm/360 for the generated sensitivity since 
+the generated sensitivity is sometimes not as accurate as 
+the cm/360 initially generated.
+
+This could lead to issues where in rainbow 6 for example
+trying to generate a sens between 20-21cm would display a
+whole range of different values, when there's not even a
+sensitivity that can be in that range at 800 dpi, since r6 
+does not use decimal points in the sensitivity slider.
+
+Because of that, the program will generate a cm/360 value
+that isn't possible to set in game, so it takes the rounded
+sens generated in generateSens() and recalculate what the
+cm/360 is for that value, not the initially generated one
+*/
+func recalcCM(sens float64, dpi int, yaw float64) (cm float64) {
+	fdpi := float64(dpi)
+	return 914.4 / (sens * fdpi * yaw)
 }
 
 func main() {
@@ -52,14 +79,32 @@ func main() {
 	inputDPI := flag.Int("dpi", 800, "Your DPI")
 	inputMin := flag.Int("min", 20, "Lower sensitivity bound")
 	inputMax := flag.Int("max", 40, "Upper sensitivity bound")
+	inputDebug := flag.Bool("debug", false, "Print all variables")
 	flag.Parse()
 
 	// processing input
 	fullName, precision, yaw := getSelectedGame(*inputGame)
 	randNum := floatRange(*inputMin, *inputMax)
 	genOutput := generateSens(randNum, *inputDPI, yaw, precision)
+	cm360 := recalcCM(genOutput, *inputDPI, yaw)
 
 	// output
-	fmt.Printf("%s in %s setttings (%0.2f cm/360)\n", genOutput, fullName, randNum)
+	fmt.Printf("%v in %s setttings (%0.2f cm/360)\n", genOutput, fullName, cm360)
 	fmt.Printf("Settings: %d DPI, %dcm - %dcm", *inputDPI, *inputMin, *inputMax)
+
+	// debug
+	if *inputDebug == true {
+		fmt.Println("\n\nDebugging\n")
+		fmt.Printf("Input Game: %v\n", *inputGame)
+		fmt.Printf("Input DPI: %v\n", *inputDPI)
+		fmt.Printf("Input Min: %v\n", *inputMin)
+		fmt.Printf("Input Max: %v\n\n", *inputMax)
+		fmt.Printf("fullName: %v\n", fullName)
+		fmt.Printf("Precision: %v\n", precision)
+		fmt.Printf("Yaw: %v\n", yaw)
+		fmt.Printf("RandNum: %v\n", randNum)
+		fmt.Printf("genOutput: %v\n", genOutput)
+		fmt.Printf("cm360: %v\n", cm360)
+	}
+
 }
