@@ -1,6 +1,5 @@
 # GoSens
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/calebpfaff/GoSens)
-![GitHub repo size](https://img.shields.io/github/repo-size/calebpfaff/gosens)
 ![GitHub last commit](https://img.shields.io/github/last-commit/calebpfaff/gosens)
 ## Sensitivity generator for various games
 
