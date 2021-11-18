@@ -43,7 +43,7 @@ func floatRange(min int, max int) float64 {
 	return fmin + rand.Float64()*(fmax-fmin)
 }
 
-// converts the random cm/360 by rounding to the game precision
+// converts the random cm/360 to game format and rounds to the game precision
 // TODO: if games allow different precisions in a config file, have it output both
 func generateSens(randValue float64, dpi int, yaw float64, prec float64) (sens float64) {
 	fdpi := float64(dpi)
@@ -56,16 +56,16 @@ Recalculates the cm/360 for the generated sensitivity since
 the generated sensitivity is sometimes not as accurate as 
 the cm/360 initially generated.
 
-This could lead to issues where in rainbow 6 for example
+Without this issues could arise where in rainbow 6 for example
 trying to generate a sens between 20-21cm would display a
-whole range of different values, when there's not even a
+whole range of different cm/360 values, when there's not even a
 sensitivity that can be in that range at 800 dpi, since r6 
 does not use decimal points in the sensitivity slider.
 
 Because of that, the program will generate a cm/360 value
 that isn't possible to set in game, so it takes the rounded
 sens generated in generateSens() and recalculate what the
-cm/360 is for that value, not the initially generated one
+cm/360 is for that value, not the initially generated one.
 */
 func recalcCM(sens float64, dpi int, yaw float64) (cm float64) {
 	fdpi := float64(dpi)
