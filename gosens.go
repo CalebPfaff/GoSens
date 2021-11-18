@@ -6,7 +6,9 @@ import (
 	"math"
 	"math/rand"
 	s "strings"
+	"strconv"
 	"time"
+	"github.com/pterm/pterm"
 )
 
 type gameEntry struct {
@@ -22,7 +24,6 @@ var gameDic = []gameEntry{
 	{"csgo", "Counter-Strike", 2.0, 0.022},
 	{"qc", "Quake Champions", 6.0, 0.022},
 	{"source", "Source Games", 2.0, 0.022},
-	{"r6", "Rainbow Six Siege", 0.0, 0.00572957795130823},
 }
 
 // matching string input to game dictionary
@@ -56,15 +57,9 @@ Recalculates the cm/360 for the generated sensitivity since
 the generated sensitivity is sometimes not as accurate as 
 the cm/360 initially generated.
 
-Without this issues could arise. For example in rainbow 6,
-trying to generate a sens between 20-21cm would display a
-whole range of different cm/360 values, when there's not even a
-sensitivity that can be in that range at 800 dpi, since r6 
-does not use decimal points in the sensitivity slider.
-
 Because of that, the program will generate a cm/360 value
 that isn't possible to set in game, so it takes the rounded
-sens generated in generateSens() and recalculate what the
+sens generated in generateSens() and recalculates what the
 cm/360 is for that value, not the initially generated one.
 */
 func recalcCM(sens float64, dpi int, yaw float64) (cm float64) {
@@ -96,8 +91,15 @@ func main() {
 			fmt.Printf("%s - %s\n", entry.fullName, entry.shortName)
 		}
 	} else {
-		fmt.Printf("%v in %s setttings (%0.2f cm/360)\n", genOutput, fullName, cm360)
-		fmt.Printf("Settings: %d DPI, %dcm - %dcm\n", *inputDPI, *inputMin, *inputMax)
+		pterm.DefaultBasicText.Printf(pterm.Green("%v ") + "in %s (" + pterm.Green("%0.2f cm/360") + ")\n\n", genOutput, fullName, cm360)
+		pterm.FgLightCyan.Println("Settings:")
+	    pterm.DefaultTable.WithHasHeader().WithData(pterm.TableData{
+	        {"DPI", "Minimum", "Maximum"},
+	        {strconv.Itoa(*inputDPI), strconv.Itoa(*inputMin), strconv.Itoa(*inputMax)},
+	    }).Render()
+
+		//fmt.Printf("%v in %s setttings (%0.2f cm/360)\n", genOutput, fullName, cm360)
+		//fmt.Printf("Settings: %d DPI, %dcm - %dcm\n", *inputDPI, *inputMin, *inputMax)
 	}
 
 	// debug
