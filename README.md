@@ -91,3 +91,5 @@ cm360: 20.765206017004576
 ## Notes
 
 The program will default to Overwatch, 800 DPI, and 20-40 cm/360, and no debug info if no flags are provided
+
+Only tested on Windows 10, and Ubuntu 20.04.3 for WSL
