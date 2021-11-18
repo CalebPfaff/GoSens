@@ -56,7 +56,7 @@ Recalculates the cm/360 for the generated sensitivity since
 the generated sensitivity is sometimes not as accurate as 
 the cm/360 initially generated.
 
-Without this issues could arise where in rainbow 6 for example
+Without this issues could arise. For example in rainbow 6,
 trying to generate a sens between 20-21cm would display a
 whole range of different cm/360 values, when there's not even a
 sensitivity that can be in that range at 800 dpi, since r6 
@@ -102,7 +102,7 @@ func main() {
 
 	// debug
 	if *inputDebug == true {
-		fmt.Println("\n\nDebugging\n")
+		fmt.Println("\nDebug Info:\n-----------")
 		fmt.Printf("Input Game: %v\n", *inputGame)
 		fmt.Printf("Input DPI: %v\n", *inputDPI)
 		fmt.Printf("Input Min: %v\n", *inputMin)
